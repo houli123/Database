@@ -1,0 +1,157 @@
+create or replace trigger t1
+after insert    --before|after|instead of
+on emp
+for each row
+declare
+begin
+	dbms_output.put_line('congratulations,insert success.');
+end;
+/
+insert into emp(empno,ename) values(1001,'xiaohong');
+
+
+-- 场景1：实现数据库备份同步
+-- 只有行级触发器才会产生new和old两个变量（行级就是for each row）
+-- 记录变量new存储scott更新后的整行信息，记录变量old记录更新前
+create or replace trigger t1
+after update
+on emp
+for each row	
+begin    -- 执行体内用new和old要在前面加冒号：new
+	update emp_bak set sal=:new.sal,job=:new.job where empno=:old.empno;
+end;
+/
+
+--插入没有:old
+create or replace trigger t1
+after insert
+on emp
+for each row
+begin
+	insert into emp_bak(empno,ename) values(:new.empno,:new.ename);
+end;
+/
+insert into emp(empno,ename) values(2000,'a');
+
+
+--删除没有:new
+create or replace trigger t1
+after delete
+on emp
+for each row
+begin
+	delete from emp_bak where ename=:old.ename;
+end;
+/
+delete from emp where ename='a';
+
+
+--利用分支结构，将同一个表下的多个事件放在一起，做一个触发器
+create or replace trigger t1
+after update or insert or delete
+on emp
+for each row
+begin
+  if updating then 
+	update emp_bak set sal=:new.sal,job=:new.job where empno=:old.empno;
+  elsif inserting then
+  	insert into emp_bak(empno,ename) values(:new.empno,:new.ename);
+  else
+	delete from emp_bak where ename=:old.ename;
+  end if;
+end;
+/
+
+
+--when触发约束，当更新emp表里部门编号为20时，才同步更新
+--方法1
+create or replace trigger t1
+after update
+on emp
+for each row	
+--when只能在行级触发器使用
+when (old.deptno=20)  --这里的old在执行体外面所以不用冒号：
+begin  
+	update emp_bak set sal=:new.sal,job=:new.job where empno=:old.empno;
+end;
+/
+update emp set sal=5000 where deptno=20;
+
+--方法2，分支结构
+create or replace trigger t1
+after update
+on emp
+for each row
+begin  
+  if :old.deptno=20 then
+	update emp_bak set sal=:new.sal,job=:new.job where empno=:old.empno;
+  end if;
+end;
+/
+update emp set sal=5000 where deptno=20;
+
+
+--场景2：数据确认，只能。。。不能。。
+create or replace trigger t1
+before update
+on emp
+for each row
+begin
+  if :old.sal>:new.sal then
+	raise_application_error(-20000,'you can not reduce my sal.');  --存储过程
+  end if;
+end;
+/
+update emp set sal=2000 where ename='SCOTT';
+
+
+create or replace trigger t1
+before update
+on emp
+for each row
+begin
+  if :new.job='CLERK' and (:new.sal not between 500 and 2000) then
+	raise_application_error(-20001,'adjust 500-2000');
+  end if;
+end;
+/
+
+--场景3：级联触发器
+--当部门表的部门编号修改时，职员表对于部门编号也会对于修改
+create or replace trigger t1
+after update
+on dept
+for each row
+begin
+	update emp set deptno=:new.deptno where deptno=:old.deptno;
+end;
+/
+update dept set deptno=21 where deptno=20;
+--alter table emp disable constraint fk_dept  --使外键失效
+--如果持续报错，那就用as创建没有约束的表emp1和dept1，就可以成功做出
+
+
+--场景4：复杂的安全性检查，如禁止非工作时间插入emp
+--select to_char(sysdate,'hh24') from dual;  -- 提取小时
+--select to_char(sysdate,'day') from dual;  -- 提取星期
+create or replace trigger t1
+before insert
+on emp  --不加for each，要用new和old就要用for each，否则随意
+begin
+  if trim(' ' from to_char(sysdate,'day')) in ('friday','sunday') or to_char(sysdate,'hh24') not between 9 and 24 then
+	raise_application_error(-20000,'inhibiting input in Saturday or Sunday');  
+  end if;
+end;
+/
+insert into emp(empno,ename) values(2024,'c');
+
+
+--表级触发器(一般用于删除）：一条语句只会执行一次，行级，每一行操作都会
+create or replace trigger t1
+after delete
+on emp1
+begin
+	dbms_output.put_line('error');
+end;
+/
+delete from emp1;

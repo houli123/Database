@@ -1,0 +1,257 @@
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book values('A003','ASSEMBLY','02','HUANG','05-nov-01',15,20.18);
+commit;
+
+
+
+create table press(
+pno varchar2(5),
+pname varchar2(30),
+padd varchar2(10),
+ptell varchar2(30)
+);
+insert into press values('01','Tsinghua','beijing','010-63458272');
+insert into press values('02','xidian','xian','0345-32434322');
+
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3) default 1,
+price number(7,2)
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname) values('A003','ASSEMBLY');
+commit;
+
+
+
+create table book(
+bno varchar2(5) constraint n_book_1 not null,
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bname) values('ASSEMBLY');
+commit;
+
+
+
+创建表后，添加列级约束
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+alter table book modify bno not null;
+
+
+unique唯一约束
+创建表时，加列级约束
+create table book(
+bno varchar2(5) unique,
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+
+
+查看book表下的约束名及约束类型
+select column_name,constraint_type,user_constraints.constraint_name
+from user_constraints,user_cons_columns 
+where user_constraints.constraint_name=user_cons_columns.constraint_name 
+and user_constraints.table_name='BOOK';
+
+表级约束
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2),
+constraint u_book_1 unique(bno)
+);
+
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname) values('A002','ASSEMBLY');
+commit;
+创表后添加：
+alter table book modify bno unique;
+删除：
+alter table book drop unique(bno);
+用add添加：
+alter table book add unique(bno);
+
+多列联合唯一，只能通过表级添加约束
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2),
+constraint u_book_1 unique(bno,bname)
+);
+
+主键约束：
+create table book(
+bno varchar2(5) primary key,
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+
+
+
+外键约束
+一般先创建主表后创建子表：出版社作为主表，书表为副表
+alter table press add primary key(pno);
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2) references press(pno),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2)
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname,pno) values('A002','ASSEMBLY','03');
+commit;
+或
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2),
+foreign key(pno) references press(pno)
+);
+
+
+外键用了on cascade后删除主表，对应的子表也会自动删除
+create table press(
+pno varchar2(5) primary key,
+pname varchar2(30),
+padd varchar2(10),
+ptell varchar2(30)
+);
+insert into press values('01','Tsinghua','beijing','010-63458272');
+insert into press values('02','xidian','xian','0345-32434322');
+
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2),
+foreign key(pno) references press(pno) on delete cascade
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname,pno) values('A002','ASSEMBLY','02');
+commit;
+
+
+第二种方法：外键用了on set null后删除主表，对应的子表会置空
+create table press(
+pno varchar2(5) primary key,
+pname varchar2(30),
+padd varchar2(10),
+ptell varchar2(30)
+);
+insert into press values('01','Tsinghua','beijing','010-63458272');
+insert into press values('02','xidian','xian','0345-32434322');
+
+create table book(
+bno varchar2(5),
+bname varchar2(30),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3),
+price number(7,2),
+foreign key(pno) references press(pno) on delete set null
+);
+insert into book values('A001','compute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname,pno) values('A002','ASSEMBLY','02');
+commit;
+
+check的使用
+create table book(
+bno varchar2(5),
+bname varchar2(30) check(bname like 'T%'),
+pno varchar2(2),
+bauthor varchar2(10),
+bdate date,
+bamount number(3) check(bamount between 0 and 100),
+price number(7,2)
+);
+insert into book values('A001','Tompute','01','LIU','07-may-98',8,25.30);
+insert into book values('A002','c++','02','MA','02-jan-03',10,18.75);
+insert into book(bno,bname,pno) values('A002','ASSEMBLY','02');
+commit;
+
+查看book表下的约束名及约束类型
+select column_name,constraint_type,user_constraints.constraint_name
+from user_constraints,user_cons_columns 
+where user_constraints.constraint_name=user_cons_columns.constraint_name 
+and user_constraints.table_name='BOOK';
+
+列级添加
+alter table book modify bamount check(bamount between 0 and 100);
+表级添加
+alter table book add check(bamount between 0 and 100);
+
+
+构造family表练习
+create table FAMILY(
+F_ID varchar2(5) primary key,
+F_name varchar2(30) unique,
+F_SEX varchar2(10) Not null,
+AGE number(3) default 20 check(age>0),
+Deptno number(3) references dept(deptno)
+);
+insert into family values('00','LI','MALE',50,10);
+insert into family values('01','WANG','FEMALE',48,20);
+insert into family(f_id,f_name,f_sex,age) values('02','XIAOHONG','MALE',20);
+alter table family add salary number(3) check(salary > 0);
+alter table family modify f_name varchar2(29);

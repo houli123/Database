@@ -1,0 +1,121 @@
+--原本的匿名块
+declare
+	v_avgsal number(7,2);
+begin
+	select avg(sal) into v_avgsal from emp;
+	dbms_output.put_line(v_avgsal);
+end;
+/
+
+--过程命名后
+create or replace procedure p_avgsal
+is   --as也可以
+	v_avgsal number(7,2);
+begin
+	select avg(sal) into v_avgsal from emp;
+	dbms_output.put_line(v_avgsal);
+end;
+/
+
+--查错用show errors
+
+--调用过程3种
+--方法1（plsql命令）
+execute p_avgsal
+--方法2（缩写）
+exec p_avgsal
+--方法3（主程序调用）
+begin
+	p_avgsal;
+end;
+/
+
+
+create or replace procedure p1(pno in number default 7788)--数据类型不需要给宽度
+is
+	v_ename varchar2(20);
+	v_sal emp.sal%type;
+	v_job emp.job%type;
+begin
+	select ename,sal,job into v_ename,v_sal,v_job from emp
+	where empno=pno;
+	dbms_output.put_line(v_ename||' '||v_sal||' '||v_job);
+	exception when others then
+		dbms_output.put_line('errors');	
+end;
+/
+
+
+create or replace procedure change_salary(pno in number,psal number)
+is
+	vno emp.empno%type;
+	vsal emp%rowtype;
+begin
+	update emp set sal=sal+psal where empno=pno;
+	select empno,sal into vno,vsal.sal from emp where empno=pno;
+	dbms_output.put_line(vno||' '||vsal.sal);
+end;
+/
+execute change_salary(7788,500)
+execute change_salary(psal=>1000,pno=>7788)  --指定对哪个参数传参
+
+create procedure test
+is  --必须要
+begin
+dbms_output.put_line('aa');
+end;
+/
+execute test
+
+
+--out型使用，不能exec执行
+create or replace procedure p_1(p_avgsal out number)  
+is
+begin
+	select avg(sal) into p_avgsal from emp;
+exception when others then
+	dbms_output.put_line('errors');
+end;
+/
+--调用out型的过程
+declare
+	v_avgsal number(7,2);
+begin
+	p_1(v_avgsal);
+	dbms_output.put_line(v_avgsal);
+end;
+/
+
+--要求一个输入参数，输入职员编号，另一个输出职员工资
+create or replace procedure p_1(p_no in number,p_sal out number)  
+is
+begin
+	select sal into p_sal from emp where empno=p_no;
+end;
+/
+--调用out型的过程
+declare
+	v_sal number(7,2);
+	v_no emp.empno%type :=7788;
+begin
+	p_1(v_no,v_sal);
+	dbms_output.put_line(v_no||' '||v_sal);
+end;
+/
+
+--in out的使用：如果in和out两个参数的参数类型是一样的，则用in out进行省略
+create or replace procedure p_1(pv in out number)  
+is
+begin
+
+	select sal into pv from emp where empno=pv;  --先判断输入的pv再into输出到pv
+end;
+/
+--调用过程
+declare
+	v_no emp.empno%type :=7788;
+begin
+	p_1(v_no);
+	dbms_output.put_line(v_no);
+end;
+/
