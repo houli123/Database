@@ -1,0 +1,16 @@
+CREATE TABLE student (
+   dno int PRIMARY KEY,
+   dname varchar(25)
+);
+
+INSERT INTO dept (dno, dname) VALUES
+(1, '理学院'),
+(2, '人工智能学院'),
+(3, '文学院'),
+(4, '经济学院'),
+(5, '法学院'),
+(6, '医学院'),
+(7, '教育学院'),
+(8, '艺术学院'),
+(9, '商学院'),
+(10, '体育学院');

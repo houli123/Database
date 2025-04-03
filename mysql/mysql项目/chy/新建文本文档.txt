@@ -1,0 +1,55 @@
+ create or replace view v_club_teacher(社团名称,社团编号,教师姓名,教师编号,教师电话,教师所属学院编号,教师所属学院名称)
+ as select club.cname,club.cno,teacher.tname,teacher.tno,ttel,teacher.dno,dept.dname
+from teacher,club,Teaclub,dept
+where teacher.tno=Teaclub.tno AND club.cno=Teaclub.cno AND teacher.dno=dept.dno
+
+可以让用户在一个表中查询到社团名称,社团编号,教师姓名,教师编号,教师电话,教师所属学院编号,教师所属学院名称
+
+create or replace view v_club_student(社团名称,社团编号,学生姓名,学生编号,学生电话,学生所属学院编号,学生所属学院名称,学生所任职位,是否为部长)
+as select club.cname,club.cno,student.sname,student.sno,stel,student.dno,dept.dname,job,leader
+from student,club,stuclub,dept
+where student.sno=stuclub.sno AND club.cno=stuclub.cno AND student.dno=dept.dno;
+可以让用户在一个表中查询到社团名称,社团编号,学生姓名,学生编号,学生电话,学生所属学院编号,学生所属学院名称,学生所任职位,是否为部长
+
+create view club_teacher_v as
+SELECT club.cname, GROUP_CONCAT(teacher.tname) AS Teachers
+FROM teaclub
+JOIN club ON teaclub.cno = club.cno
+JOIN teacher ON teaclub.tno = teacher.tno
+GROUP BY club.cname;
+设计一个视图显示指导每个社团的所有教师
+
+create view club_student_v as
+SELECT club.cname, GROUP_CONCAT(student.sname) AS Students
+FROM stuclub
+JOIN club ON stuclub.cno = club.cno
+JOIN student ON stuclub.sno = student.sno
+GROUP BY club.cname;
+设计一个视图显示每个社团的所有学生：
+
+学生姓名更新后，同步更新学生社团表中的学生姓名：
+DELIMITER //
+CREATE TRIGGER after_update_sname_Teaclub
+AFTER UPDATE ON student
+FOR EACH ROW
+BEGIN
+   IF OLD.sname <> NEW.Sname THEN
+      UPDATE stuclub
+      SET sname = NEW.sname
+      WHERE sno = OLD.sno;
+   END IF;
+END //
+
+教师名称更新后，同步更新教师社团表中的教师名称
+DELIMITER //
+CREATE TRIGGER after_update_Tname_Teaclub
+AFTER UPDATE ON teacher
+FOR EACH ROW
+BEGIN
+   IF OLD.tname <> NEW.tname THEN
+      UPDATE Teaclub
+      SET tname = NEW.tname
+      WHERE tno = OLD.tno;
+   END IF;
+END //
+
