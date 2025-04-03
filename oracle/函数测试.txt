@@ -1,0 +1,3 @@
+12.27号考试函数：abs,sqrt,power,cos,mod,ceil,floor,round,trunc,length
+ascii,chr,lower,upper,concat,length,substr,instr,trim,replace,rpad,lpad,to_char,to_date
+nvl
