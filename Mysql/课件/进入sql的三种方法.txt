@@ -1,0 +1,3 @@
+1.直接在网址输入http://localhost:8080 或 http://localhost:8080/phpMyAdmin/
+2.打开MySQL Command Line Client
+3.cmd中输入mysql -uroot -p

@@ -1,0 +1,33 @@
+一、在虚拟机和windows文件中确认自己的系统，学会上架，下架和更名：
+1、在vmware中我的计算机下面，学会系统下架，右键点击系统，选择移除
+2、在E盘中，选择自己的操作系统，将总的目录改为自己的学号
+3、在vmware中，选择文件-打开-选择自己学号目录下的OEL2.vmx，那么在我的计算机中上架了自己的系统
+4、右键点击自己系统，选择重命名，改为自己的学号
+
+
+二、学会打开oracle数据库系统
+
+1、主要操作命令
+- 进入root：su - [root]
+- 登录sqlplus：sqlplus /nolog     
+- 用工具rlwrap登录：rlwrap sqlplus /nolog
+- 以系统管理员登录Oracle数据库：conn / as sysdba
+- 改用户密码：alter user scott account unlock;      //     alter user scott identified by tiger;
+- 以用户身份登录Oracle数据库：conn scott/tiger
+- 启动一个实例：startup
+
+2、安装rlwrap工具包
+Root账户： su – 口令：Oracle123
+
+Rlwrap工具安装
+第一步：将rlwrap工具包由windows拖入linux桌面Oracle主文件夹
+第二步：登陆root账户 
+su -   （口令Oracle123）
+第三步：进入Oracle主文件夹  
+Cd  /home/oracle/rlwrap
+第四步：安装
+./configure
+make
+make install
+终端窗口启动
+rlwrap sqlplus /nolog

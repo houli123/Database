@@ -1,0 +1,33 @@
+1、了解查询语句结构： select ... from... where... group by... having... order by... limit...;
+2、熟练掌握查询语句中对象属性限制的表达方法    select  具体属性 from 具体对象
+3、掌握条件限制的表达方法         select  具体属性 from 具体对象 where 属性的条件限制
+
+(DISTINCT 数据只显示一次）
+
+4、where之模糊查询
+     通配符是数据库技术里常用的一种技术，例如“%”表示一个或多个字符，“_”表示一个字符
+    例如：SELECT bookName, author FROM book WHERE author LIKE '曹%';
+
+    练习：查找作者名字为三个字，中间有一个‘雪’。
+              SELECT bookName, author FROM book WHERE author LIKE '_雪_';
+    当通配符含有_时，需要有一个符号用来申明该‘_’失去通配符的作用，采用原有的‘_’意思。
+     SELECT bookName, author FROM book WHERE bookName LIKE '%#_%' ESCAPE '#';
+
+5、用于范围比较的关键字 between
+    select bookName,author,price FROM book where price between 30 and 50; 
+  相当于 select bookName,author,price FROM book where price>=30 and price<=50; 
+ select bookName,author,price FROM book where price>=30 and <=50;   X
+ select bookName,author,price FROM book where 50>=price>=30; X
+    用于字符类数据的查找 使用关键字in
+   select bookName,publishname,price FROM book where publishname in('清华大学出版社','长江出版社','学苑出版社');
+   select bookName,publishname,price FROM book where publishname='清华大学出版社' or publishname='长江出版社' or publishname='学苑出版社';
+
+6、空值比较
+当需要判定一个表达式的值是否为空值时，使用IS NULL关键字
+select bookno,borrowdate,returndate from borrow where returndate is null;
+
+练习：请查找出读者的办证时间在2018年之后的读者姓名和办证生效时间；
+ select readername,effectdate from reader where effectdate>='2018-01-01';
+select readername,effectdate from reader where effectdate>'2018';
+         请查找出在2018年办理读者证的读者姓名和办证生效时间；
+          select readername,effectdate from reader where effectdate like '2018%';

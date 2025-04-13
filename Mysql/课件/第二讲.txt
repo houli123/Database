@@ -1,0 +1,23 @@
+1、登录，使用CMD打开命令提示符
+    输入用户名密码： MySQL -uroot -p  当出现mysql>  代表进入数据库环境
+2、如果密码丢失，请在数据库环境下
+step 1: SET PASSWORD = PASSWORD(‘your new password‘);
+step 2: ALTER USER ‘root‘@‘localhost‘ PASSWORD EXPIRE NEVER;
+step 3: flush privileges;
+3、使用密码登录MySQL -uroot -p  进入数据库环境
+4、查看数据库（数据源）
+    show databases;
+5、如果有残留数据库，请删除
+   drop database lib；
+6、安装数据源
+   source d:/lib_bk.sql;
+7、验证数据库
+   show databases；查看有没有lib数据库
+8、进入数据库
+   use lib；
+9、查看数据表
+   show tables；
+10、选择一个数据表查看数据
+如： select * from book;
+
+    

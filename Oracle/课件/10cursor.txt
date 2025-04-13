@@ -1,0 +1,153 @@
+查询smith职员编号，姓名，职务
+declare
+v_empno emp.empno%type;
+v_ename emp.ename%type;
+v_job emp.job%type;
+begin
+	select empno,ename,job into v_empno,v_ename,v_job from emp
+where ename='SMITH';
+dbms_output.put_line(v_empno||'  '||v_ename||'  '||v_job);
+end;
+/
+
+查询JONES职员编号，姓名，职务
+declare
+v_empno emp.empno%type;
+v_ename emp.ename%type;
+v_job emp.job%type;
+begin
+	select empno,ename,job into v_empno,v_ename,v_job from emp
+where ename='JONES';
+dbms_output.put_line(v_empno||'  '||v_ename||'  '||v_job);
+end;
+/
+
+用游标实现查询smith和jones职员编号，姓名，职务
+declare  
+cursor emp_cursor is select empno,ename,job from emp where ename in ('SMITH','JONES');  -- 1.声明游标
+v_empno emp.empno%type;
+v_ename emp.ename%type;
+v_job emp.job%type;
+begin
+	-- 2.打开游标
+	open emp_cursor;
+	-- 3.提取数据
+	loop
+		fetch emp_cursor into v_empno,v_ename,v_job;
+		exit when emp_cursor%found=false;
+		dbms_output.put_line(v_empno||'  '||v_ename||'  '||v_job);
+	end loop;
+	-- 4.关闭游标
+	close emp_cursor;
+end;
+/
+
+实现2
+declare
+cursor emp_cursor is select empno,ename,job from emp where ename in ('SMITH','JONES');  -- 1.声明游标
+v_empno emp.empno%type;
+v_ename emp.ename%type;
+v_job emp.job%type;
+begin
+	-- 2.打开游标
+	open emp_cursor;
+	-- 3.提取数据
+	for i in 1..2
+	loop
+		fetch emp_cursor into v_empno,v_ename,v_job;
+		dbms_output.put_line(v_empno||'  '||v_ename||'  '||v_job);
+	end loop;
+	-- 4.关闭游标
+	close emp_cursor;
+end;
+/
+
+显示所有部门20的信息
+declare
+cursor emp_cursor is select empno,ename,job from emp where deptno=20;  -- 1.声明游标
+v_empno emp.empno%type;
+v_ename emp.ename%type;
+v_job emp.job%type;
+begin
+	-- 2.打开游标
+	open emp_cursor;
+	-- 3.提取数据
+	for i in 1..5
+	loop
+		fetch emp_cursor into v_empno,v_ename,v_job;
+		dbms_output.put_line(emp_cursor%rowcount||'  '||v_empno||'  '||v_ename||'  '||v_job);
+	end loop;
+	-- 4.关闭游标
+	close emp_cursor;
+end;
+/
+
+--显示所有部门20的信息2
+declare
+cursor emp_cursor is select empno,ename,job from emp where deptno=20;  -- 1.声明游标
+begin
+	for i in emp_cursor
+	loop
+		dbms_output.put_line(emp_cursor%rowcount||'  '||i.empno||'  '||i.ename||'  '||i.job);
+	end loop;
+end;
+/
+
+--显示所有部门20的信息3
+declare
+begin
+	for i in (select empno,ename,job from emp where deptno=20)
+	loop
+		dbms_output.put_line(i.empno||'  '||i.ename||'  '||i.job);
+	end loop;
+end;
+/
+
+
+查询sal按*多少显示
+declare
+begin
+	for i in (select ename,sal from emp)
+	loop
+		dbms_output.put_line(rpad(i.ename,12,' ')||rpad('*',i.sal/100,'*'));
+	end loop;
+end;
+/
+
+--参数传递
+declare
+cursor emp_cursor(dno number) is select empno,ename,job from emp where deptno=dno;
+begin
+	--类似函数的参数传递
+	for i in emp_cursor(30)
+	loop
+		dbms_output.put_line(emp_cursor%rowcount||'  '||i.empno||'  '||i.ename||'  '||i.job);
+	end loop;
+end;
+/
+
+--变量参数传递
+declare
+v_dno number(2);
+cursor emp_cursor is select empno,ename,job from emp where deptno=v_dno;
+begin
+	v_dno:=10;
+	--类似函数的参数传递
+	for i in emp_cursor
+	loop
+		dbms_output.put_line(emp_cursor%rowcount||'  '||i.empno||'  '||i.ename||'  '||i.job);
+	end loop;
+end;
+/
+
+--input变量传递游标
+declare
+cursor emp_cursor is select empno,ename,job from emp where deptno=&num;
+begin
+	--类似函数的参数传递
+	for i in emp_cursor
+	loop
+		dbms_output.put_line(emp_cursor%rowcount||'  '||i.empno||'  '||i.ename||'  '||i.job);
+	end loop;
+end;
+/

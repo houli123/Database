@@ -1,0 +1,98 @@
+Oracle从入门到精通 (秦靖 刘存勇) 
+plsql：p135
+oracle笔记学习：https://blog.csdn.net/m0_46313726/article/details/121465974
+
+已学完sql部分
+p73-154
+索引294
+视图351完结
+363序列
+
+树图索引本质是：二叉排序树
+更快的实现：平衡二叉排序树
+
+input变量替换
+select empno,sal
+from emp
+where sal >=&salary;
+
+show all 查看全部环节变量
+
+change
+c \旧名\新名
+
+设置列的显示长度
+col 字段名 for 999
+
+视图的字段名也要求要符合表的字段名
+权限赋予与回收
+grant create view to scott;
+revoke create view from scott;
+
+select * from tab;   等价于   select * from cat;
+查看定义约束的两个视图：
+desc user_constraints
+desc user_cons_columns
+查看book表下的约束名及约束类型
+select column_name,constraint_type,user_constraints.constraint_name
+from user_constraints,user_cons_columns 
+where user_constraints.constraint_name=user_cons_columns.constraint_name 
+and user_constraints.table_name='BOOK';
+用别名实现上述操作：
+select column_name,constraint_type,
+约束类型：
+C:check
+p:primary key
+u:unique
+r:foreign key
+
+创表后添加：
+alter table book modify bno unique;
+删除：
+alter table book drop unique(bno);
+用add添加：
+alter table book add unique(bno);
+
+
+转义操作
+select * 
+from dept
+where dname like 'IT\_%' escape '\';
+用escape定义\是转义字符，用来转义_免得被like当做单个字符去处理
+不是必须要用转义字符\，只需按定义的符号来当做转义字符就好
+即可以where dname like 'IT~_%' escape '~';
+
+order by补充
+可以order by 列号   来排序
+
+p67
+sql*plus语句
+1.desc 表名
+2.set line[size] [80/n]  //80是默认值
+表示显示输出设置为n个字符宽
+
+3.检查错误直接修改
+当遇见错误时：
+select ename
+from dept;
+第一步输入L(LIST)命令：
+L
+可以查看刚刚输入的sql语句
+第二步修改上述的错误语句用n text：
+2 from emp
+n表示第几行进行修改，text表示修改成
+第三步用'/'或R（run）命令执行修改后的语句：
+/或R
+
+4.用n（设置当前行）命令和a（ppend）（附加）命令添加缺少的成分（不能修改））
+select ename
+from emp;
+第一步：L来显示SQL缓冲中的内容
+其中*表示的为当前行
+第二步输入1，转换为第一行：
+1
+第三部添加成分：
+a,job,sal
+a和添加的成分需要用逗号隔开
+第四步：用L检查并用/或R运行：
+R或/

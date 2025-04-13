@@ -1,0 +1,437 @@
+更改主机名：
+（1）hostname 主机名 一次有效。重启操作系统无效。
+（2）改文件
+
+ls：查看当前路径下的文件夹和文件
+cd：进入某某路径
+
+vi编辑器：
+按i进入编辑
+按esc键退出编辑
+shift+；到最下行
+退出编辑状态 然后：wq保存并退出
+退出编辑状态 然后：q!不保存并退出
+
+cat 路径文件名，查看内容
+
+cat /etc/udev/rules.d/70-persistent-net.rules 网络连接位置
+
+00:0c:29:cf:19:c5
+
+vi /etc/hosts              用文件更改IP
+
+
+
+sqlplus /nolog             不登陆连接
+conn sys/oracle as sysdba  连接超级管理员
+startup                    打开数据库
+conn scott/tiger;
+
+alter 修改
+
+set pagesize 页高
+set linesize 行高
+set feedback on/off 打开或关闭结果中行数的显示
+set heading on/off  打开或关闭表头显示
+set time on/off     打开或关闭表头显示
+spool xx   记录在XX中
+
+spool off  记录结束
+Select ename,deptno,sal from emp where deptno=10 or deptno=20;
+
+
+
+
+
+
+SQL> conn scott/tiger@tea408(连接老师)
+
+
+
+
+
+
+
+
+
+
+$netmgr
+1521端口号的监听器，自动监听该数据库服务器上所有的数据库。不需要添加。
+监听器是在服务器端的配置，暂时只能监听本机，默认的端口号是1521，1521端口的监听器，自动监听该数据库服务器上所有的数据库。不
+是在客服端的配置，可以通过配置网络服务名连接到任何一台服务器。
+conn 用户名/口令·网络服务名 [as sysdba]
+配置文件：4ORACLE——HOME/network/admin/tnsnames.ora
+
+lsnrctl>start(启动监听器)：====>>$lsnrctl start
+lsnrctl>status(查看监听器的状态)====>>$lsnrctl ststus
+lsnrctl> stop 监听器的名字 停止某个监听器
+lsnrctl> start 监听器的名字 启动某个监听器
+lsnrctl>status 监听器的名字 查看某个监听器的状态
+
+
+
+$cat 文件名 查看文件的内容
+环境变量文件.bash_profile
+
+使用环境变量：$环境变量名  
+
+export LANG=en 将乱码变为英文 
+
+修改一个用户的口令和锁定方式
+alter user scott identified by tiger account unlock;
+
+shutdown immediate 关闭数据库
+
+启动数据库：startup
+            startup nomount ---〉alter database mount --->alter database open;
+            startup mount --->alter database open
+只读方式打开数据库:
+                （关闭状态） ---->startup open read only;
+                 (mount状态）---->alter database open read oly;
+可读可写的方式：
+              （关闭状态）--->startup;
+受限模式：（open状态）alter system enable restricted session;
+           (关闭状态) startup open restricted session;
+取消受限模式：alter system disable restricted session;
+
+（0台阶）关闭状态(啥事也做不了）
+（1台阶）nomount状态(create database\create controlfile)：读取初始化参数文件和警告日志文件
+（2台阶）mount状态（改归档模式，闪回模式）：读取控制文件
+（3台阶）open状态（啥事也做了）：读取数据文件和日志文件
+
+shutdown {immediate|normal|transactional}
+
+update emp set sal=9000 where empno=7788;
+
+set autocommit off
+
+select status from v$instance;---查数据库处在什么状态
+
+show parameter spfile; 有值表示以spfile启动数据库，无表示以pfile文件启动数据库
+spfile启动数据库：在数据库运行过程中通过命令可以修改参数的值。alter system set 参数=值 [scope=memory(当前一次性)|scope=spfile（重启后生效）]
+pfile启动数据库，只能通过VI编辑器修改pfile文件，改变参数的值。
+
+创建新的静态初始化参数文件（pfile）:create pfile from spfile(条件：spfile必须存在)
+创建新的服务器初始化参数文件（spfile）：create spfile from pfile(条件：pfile必须存在)
+show parameter db_block_ 参数名：查看参数的值
+
+show parameter open open_cursors; 查看当前open_cursors的数据 
+
+
+
+
+复用控制文件的步骤：
+1.修改参数
+SQL>  alter system set control_files='/opt/oracle/con03.ctl','/opt/oracle/oradata/db01/control01.ctl','/opt/oracle/flash_recovery_area/db01/control02.ctl'  scope=spfile;
+（希望有多少个控制文件就写上多少个控制文件）
+2.关闭数据库
+shutdown immediate;|shutdown transactional|shutdown normal
+3.copy或者delete或者改名，确保物理的控制文件和参数中的控制文件一样
+[oracle@oracle37 ~]$ cp //opt/oracle/oradata/db01/control01.ctl /opt/oracle/con03.ctl  被复制文件在前，复制新的文件在后
+4.重新启动数据库
+
+pfile启动数据库的话，如何复用控制文件的步骤：
+（1）shutdown immediate;
+(2) [create pfile from spfile];
+(3) vi initdb01.ora
+里面的 control_files(希望有多少个控制文件，就写上多少)
+(4) copy或者delete或者改名，确保物理的控制文件和参数中的控制文件一样
+(5) [create spfile from pfile]
+(6) startup
+
+
+查看当前系统中控制文件的信息:
+SQL> select name from v$controlfile;
+
+NAME
+--------------------------------------------------------------------------------
+/opt/oracle/oradata/db01/control01.ctl
+/opt/oracle/flash_recovery_area/db01/control02.ctl
+
+SQL> show parameter control_files;
+
+NAME				     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+control_files			     string	 /opt/oracle/oradata/db01/contr
+						 ol01.ctl, /opt/oracle/flash_re
+						 covery_area/db01/control02.ctl
+
+V$开头叫动态性能视图
+V$instance v$controfile
+dba_\all_\user_:三种开头为数据字典视图
+
+ls -ltr 按时间顺序进行排序
+
+重建控制文件代码
+CREATE CONTROLFILE REUSE DATABASE "DB01" RESETLOGS  NOARCHIVELOG
+    MAXLOGFILES 16
+    MAXLOGMEMBERS 3
+    MAXDATAFILES 100
+    MAXINSTANCES 8
+    MAXLOGHISTORY 292
+LOGFILE
+  GROUP 1 '/opt/oracle/oradata/db01/redo01.log'  SIZE 50M BLOCKSIZE 512,
+  GROUP 2 '/opt/oracle/oradata/db01/redo02.log'  SIZE 50M BLOCKSIZE 512,
+  GROUP 3 '/opt/oracle/oradata/db01/redo03.log'  SIZE 50M BLOCKSIZE 512
+-- STANDBY LOGFILE
+DATAFILE
+  '/opt/oracle/oradata/db01/system01.dbf',
+  '/opt/oracle/oradata/db01/sysaux01.dbf',
+  '/opt/oracle/oradata/db01/undotbs01.dbf',
+  '/opt/oracle/oradata/db01/users01.dbf',
+  '/opt/oracle/oradata/db01/example01.dbf'
+CHARACTER SET AL32UTF8
+;
+
+查看日志组的信息
+select * from v$log;
+
+查看日志成员（日志文件）的信息
+select * from v$logfile;
+
+SQL> alter database add  logfile group 6('/opt/oracle/oradata/db01/log6a.log') size 4M;
+
+增加日志组：alter database add logfile [group n] (‘路径文件名’，‘路径文件名’) size nM；
+删除日志组：alter database drop logfile group n; (当前,active日志组不能删）
+
+当前情况：日志组有3个，每个大小是50M，现在希望把日志组改为两组，大小为4M
+解决方案：先增加两个日志组，再删除原来的3个日志组。
+
+当前情况：日志组有2个，希望更改日志文件的路径文件名
+解决方案：先增加成员，再删除原来的成员。
+
+增加成员：alter database add logfile member '/opt/oracle/oradata/db01/log6b.log' to group 6;
+删除成员：alter database drop logfile member '路径文件名';（当前，active日志组的成员不能删,仅是逻辑上的，物理上该文件还存在）；
+
+
+手工发出检查点：alter system checkpoint;
+
+手工切换日志组：SQL> alter system switch logfile;
+
+/opt/oracle/oradata/db01/log4a.log====>/opt/oracle/log4a.log
+
+更改数据库的归档模式：
+ （1）SQL〉shutdown immediate;
+  (2) SQL> startup mount;
+  (3) SQL> alter database archivelog;
+  (4) SQL> alter database open;
+  (5) archive log list;(查看数据库是否启用归档模式)
+
+更改归档存放路径
+alter system set log_archive_dest_1='location=路径名';
+SQL> alter system set log_archive_dest_1='location=/opt/oracle/arch';
+
+更改归档文件的格式
+SQL> alter system set log_archive_format='%t_%s_%r.arc' scope=spfile;
+
+创建表空间：
+SQL> CREATE tablespace test(表空间名)
+  2  datafile '/opt/oracle/oradata/db01/test01.dbf' size 1M,'/opt/oracle/test02.dbf' size 2M
+  3  extent management local(前面写上表示本地管理) [autoallocate |uniform size 128K（区的大小自动分配）;
+
+创建表：
+SQL〉create table TBA1(name varchar2(20))（表名） 
+  2  tablespace DATA01;（要插的表空间）
+
+SQL> alter tablespace DATA01 read only;（将表空间修改为只读状态）
+SQL> alter tablespace DATA01 read write;（将表空间修改为可读可写状态）
+
+查看数据文件或者表空间的大小：
+SQL>select file_name,bytes from dba_data_files where tablespace_name='TEST';
+
+查看表空间的名字，类型
+select tablespace_name,status,contents from dba_tablespaces;
+
+查看表与表空间的关系
+select tablespace_name from dba_tables where table_name='EMP';
+
+逻辑单位：表空间（tablespace）——段(segment)——区(extent)——块(block)
+一个表空间可以由多个数据文件组成。表空间的大小就是数据文件的大小之和。
+
+数据库按物理结构分：控制文件，日志文件，数据文件（口令文件，初始化参数文件警告日志文件 跟踪文件 归档日志文件）
+
+扩大表空间的大小：
+（1）增加一个数据文件 alter tablespace test add datafile '/opt/oracle/test03.dbf' size 1M;
+（2）可以扩展（把扩展属性打开）SQL> ALTER database datafile 7 autoextend on next 1M maxsize 100M;（七号文件 1M增长，100M最多）
+（3）更改数据文件的大小 SQL> ALTER database datafile 7（或文件名） resize 3m;（改7号 变成3M）
+
+重命名表空间
+alter tablespace 原名 rename to 新名；
+
+删除表空间
+drop tablespace test [including contents and datafiles]；
+
+移动数据文件
+（1）表空间脱机：SQL> alter tablespace example（注意表名） offline;
+(2)物理上移动数据文件 [oracle@oracle37 ~]$ cd /opt/oracle/oradata/
+[oracle@oracle37 oradata]$ ls
+db01  log4b.rdo  szpt6a.log  szpt6c.log
+[oracle@oracle37 oradata]$ cd db01/
+[oracle@oracle37 db01]$ ls
+control01.ctl  log6b.log   redo02.log  redo06.log    temp01.dbf     users01.dbf
+example01.dbf  log6c.log   redo03.log  sysaux01.dbf  test01.dbf
+log6a.log      redo01.log  redo04.log  system01.dbf  undotbs01.dbf
+[oracle@oracle37 db01]$ cp example01.dbf /opt/oracle/example01.dbf
+[oracle@oracle37 db01]$ rm example01.dbf
+（3）移动文件指针（告诉控制文件，数据文件发生变化）：SQL> alter tablespace example rename datafile '/opt/oracle/oradata/db01/example01.dbf' to '/opt/oracle/example01.dbf';
+    recovery datafile DATA01;（介质恢复）
+（4）表空间联机：SQL> alter tablespace example（注意表名） online;
+select file_name from  dba_data_files;（查询）
+
+系统表空间数据文件的移动
+（1）shutdownimmediate;
+（2）startup mount;
+(3)物理上移动
+(4)alter database rename file 源文件 to 新文件
+（5）alter database open;
+
+创建临时表空间：
+SQL> create temporary tablespace temp02（表名）
+  2  tempfile '/opt/oracle/oradata/db01/temp02.dbf' size 1M
+  3  [extent management local uniform size 64k;]
+
+更改数据库默认的临时表空间：
+SQL> alter database default temporary tablespace temp02（表名）;
+
+更改用户默认的临时表空间
+alter user temporary tablespace **(表名);
+
+查询系统临时表空间：
+SQL> select tablespace_name,contents from dba_tablespaces;（）
+
+创建临时表空间组
+SQL> create temporary tablespace a（表名）
+  2  tempfile '/opt/oracle/a1.dbf' size 4m（最小4m）
+  3  tablespace group wo（组名）;
+有临时表空间组，就可以使用组名代替临时表空间名
+
+创建undo表空间
+SQL> create undo tablespace undotbs2
+  2  datafile '/opt/oracle/undotbs.dbf' size 4m;
+
+一个系统中，只允许有一个正在使用的undo表空间
+
+修改系统默认的undo表空间
+alter system set undo_tablespace=***(表名)
+
+新建一个用户
+SQL> create user shen（名）identified by shen（名）
+  2  temporary tablespace temp02（表名）临时表空间
+  3  default tablespace users 表空间定义
+  4  quota 1m on users（表名）（1m配额）
+  5  account lock;（锁定）
+
+修改用户：
+SQL> alter user shen（名）identified by shen（名）
+  2  temporary tablespace temp02（表名）临时表空间
+  3  default tablespace users 表空间定义
+  4  quota 1m on users（表名）（1m配额）
+  5  account lock;（锁定）
+
+用超级管理员为shen用户增加2m的配额
+SQL> conn sys/admin as sysdba
+Connected.
+SQL> alter user shen quota 2m on users;
+
+解锁新用户
+SQL> alter user shen
+  2  account unlock;
+
+授权用户
+SQL> grant create session,create table to shen（用户名）;
+
+创建表
+create table aa(bb int)[表名] tablespace TEST（表空间名）
+
+分配用户shen在TEST表空间的配额
+SQL> alter user shen quota 1m on TEST;
+
+查询所有表空间
+SQL> select tablespace_name from dba_tablespaces;
+
+系统权限不会级联回收，对象权限会级联回收
+
+查询系统权限：
+select * from dba_sys_privs
+select * from user_sys_privs：用户系统权限
+对象权限
+select * from dba_tab_privs
+select * from user_tab_privs
+回收用户权限：
+SQL> revoke create session,create table from shen;
+
+select * from dba_ta_quotas;
+
+授予创建表，以shen与管理选项：
+SQL> grant create table to shen with admin option;
+
+角色的使用步骤：
+1，创建角色
+2，给角色分配权限
+3，把角色分配给用户
+
+create role 角色名;
+grant create table,create procedure to r_1 with admin option;
+grant select,insert,update(deptno) on scott.emp to r_1;(不可以有with grant option
+grant select on scott.dept to r_1;(也不可以有 with grant option）
+
+revoke r_1 from c408;回收角色权限
+
+开启闪回模式
+shutdown immediate;
+startup mount;
+alter database flashback on;
+alter database open;
+
+一。(闪回数据库使用的三闪回区的闪回日志)
+alter system set db_recovery_file_dest_size=4G;设置闪回区的大小
+
+alter system set db_recovery_file_dest='/opt/oracle/flashback';设置闪回区的路径
+
+你想把数据库闪回到过去的时间点：
+shutdown immediate;
+startup mount;
+flashback database to timestamp('2015-12-09 10:50:07','yyyy-mm-dd hh24:mi:ss');
+alter database open resetlogs;
+
+不完全恢复一定是mount状态下完成的。
+
+二。闪回删除
+  用户的回收站
+  show recyclebin （查看回收站）
+  flashback table to before drop rename to 表名；(闪回表）
+  drop table *** purge；永久删除一个表
+  purge recyclebin （清空回收站）
+
+SQL> @ /home/oracle/scott.sql;
+
+三。闪回版本查询
+  基于undo数据
+  误delete的数据可以用
+  select * from table_name as of timestamp 时间；----查询该表在过去某一个时间点的状态
+
+mkdir -p /opt/oracle/dir 直接创建完美的目录
+
+四。闪回表
+基于undo数据
+alter table 表名 enable row moveement;
+flashback table 表名 to timestamp 时间；将表闪回至过去的某个时间点
+
+创建aa
+SQL> create directory aa as '/opt/oracle/';
+
+导出某个表的数据
+expdp 用户名/口令 directory=目录名 dumpfile=文件名 tables=表1，表2
+注意事项，用户在该目录名上有读和写的权限
+[oracle@oracle37 oracle]$ expdp hr/tiger directory=bb dumpfile=empl.dump tables=employees
+
+导入某个表的数据
+impdp 用户名/口令 directory=目录名 dumpfile=文件名 tables=表1，表2 table_exists_action=[replace|append]
+注意事项，文件名要存在 remap_schema=hr:scott(所有者：目标）
+[oracle@oracle37 oracle]$ impdp scott/tiger directory=bb dumpfile=empl.dump tables=hr.employees remap_schemas=hr:scott
+
+授予读和写的权限给hr于bb
+SQL> grant read,write on directory bb to hr;
+
+更改临时表空间b1容量为500m
+alter database tempfile '/opt/oracle/b1.dbf' resize 500m;

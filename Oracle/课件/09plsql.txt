@@ -1,0 +1,221 @@
+set serveroutput on  --(每次重启数据库需要打一遍)
+declare
+v_sal number(7,2);
+begin
+select sal into v_sal from emp where ename='KING';
+dbms_output.put(v_sal);
+dbms_output.new_line;
+end;
+/
+--等价于
+set serveroutput on  --(每次重启数据库需要打一遍)
+declare
+v_sal number(7,2);
+begin
+select sal into v_sal from emp where ename='KING';
+dbms_output.put_line(v_sal);
+end;
+/
+
+--变量常量及默认值
+--变量名 [constant] 类型 [NULL] [:=值| default 值];
+declare
+v_sal constant number(7,2) :=5000;
+begin
+dbms_output.put_line(v_sal);
+end;
+/
+--
+declare
+v_sal constant number(7,2) default 5000;
+begin
+dbms_output.put_line(v_sal);
+end;
+/
+
+--变量类型
+declare
+-- v_sal number(7,2);  --标准变量
+v_sal emp.sal%type;  -- 参考变量（表的字段）
+v_sal1 v_sal%type;  --参考变量的参考变量
+begin
+select sal into v_sal from emp where ename='KING';
+v_sal1:=v_sal;
+dbms_output.put_line(v_sal);
+dbms_output.put_line(v_sal1);
+end;
+/
+
+--练习2
+declare
+v_ename emp.ename%type;  -- 参考变量
+v_job emp.job%type;
+begin
+select ename,job into v_ename,v_job from emp where empno=7788;
+dbms_output.put_line(v_ename||'   '||v_job);  --这里putline只接收一个参数
+end;
+/
+
+
+--复合变量(记录|行 变量）
+declare
+emp_record emp%rowtype;
+begin
+select * into emp_record from emp where empno=7788;
+dbms_output.put_line(emp_record.ename||'   '||emp_record.job);  --这里putline只接收一个参数
+end;
+/
+
+--练习1
+declare
+emp_record emp%rowtype;
+begin
+select * into emp_record from emp where ename='KING';
+dbms_output.put_line(emp_record.sal);
+end;
+/
+
+--非pl的sqlplus结合变量（在declare外声明）
+variable v_sal number
+declare
+begin
+select sal into :v_sal from emp where ename='KING';
+dbms_output.put_line(:v_sal);
+end;
+/
+
+--if else elsif语句
+declare
+v_sal number(7,2);
+begin
+select sal into v_sal from emp where ename='JAMES';
+if v_sal>=3000 then 
+	dbms_output.put_line(v_sal|| '   A');
+elsif v_sal>=2000 then
+	dbms_output.put_line(v_sal|| '   B');
+else
+	dbms_output.put_line(v_sal|| '   C');
+end if;
+end;
+/
+
+--训练2
+declare
+v_sal number(7,2);
+begin
+select sal into v_sal from emp where ename='SCOTT';
+if v_sal>=3000 then 
+	dbms_output.put_line(v_sal-100);
+else
+	dbms_output.put_line(v_sal+100);
+end if;
+end;
+/
+
+--定义table变量
+declare
+	type type_table is table of varchar2(10) index by binary_integer;  -- 类型说明
+	v_t type_table;  -- 定义table变量
+begin
+	v_t(1):='monday';
+	v_t(2):='tuesday';
+	v_t(3):='wednesday';
+	dbms_output.put_line(v_t(3));
+end;
+/
+
+--循环结构1：先循环后判断
+declare
+	v_sum number(4) :=0;
+	v_num number(2) :=1;
+begin
+	loop
+		v_sum:=v_sum+power(v_num,2);
+		v_num:=v_num+2;
+		exit when v_num>11;
+	end loop;
+	dbms_output.put_line(v_sum);
+end;
+/
+
+--循环结构2：固定循环次数
+declare
+	v_sum number(3) :=0;
+begin
+	for i in 1..11
+	loop
+		if mod(i,2)=1
+			then v_sum:=v_sum+i**2;
+		end if;
+	end loop;
+	dbms_output.put_line(v_sum);
+end;
+/
+
+--循环结构3：while
+declare
+	v_sum number(4) :=0;
+	v_num number(2) :=1;
+begin
+	while v_num<=11
+	loop
+		v_sum:=v_sum+v_num**2;
+		v_num:=v_num+2;
+	end loop;
+	dbms_output.put_line('sum= '||v_sum);
+end;
+/
+
+--练习2：100以内能被3或5整除的和
+declare
+	v_sum number(5) :=0;
+begin
+	for i in 1..100
+	loop
+		if (mod(i,3)=0 or mod(i,5)=0) then
+			v_sum:=v_sum+i;
+		end if;
+	end loop;
+	dbms_output.put_line('sum= '||v_sum);
+end;
+/
+-- 或者
+declare
+	v_sum number(5) :=0;
+	v_num number(5) :=1;
+begin
+	while v_num<=100
+	loop
+		if (mod(v_num,3)=0 or mod(v_num,5)=0) then
+			v_sum:=v_sum+v_num;
+		end if;
+		v_num:=v_num+1;
+	end loop;
+	dbms_output.put_line('sum= '||v_sum);
+end;
+/
+
+
+
+
+求1!+2!+...10!
+declare
+	v_sum number(7) :=0;
+	v_num number(7);
+begin
+	for i in 1..10
+	loop
+		v_num:=1;
+		for j in 1..i
+		loop
+			v_num:=v_num*j;
+		end loop;
+		v_sum:=v_sum+v_num;
+	end loop;
+	dbms_output.put_line(v_sum);
+end;
+/
+
+
+
+

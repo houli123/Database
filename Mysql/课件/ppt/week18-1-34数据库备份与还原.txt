@@ -1,0 +1,8 @@
+--e.g.把lib数据库完全备份
+--开始->运行->cmd回车，进入DOS窗口
+mysqldump --no-defaults -uroot -p12345678 lib > d:\lib_2023-06-19.sql
+
+
+--e.g.在mysq的环境里，删除bookstore数据库所有表（或者先删除bookstore数据库，然后再建一个空的bookstore数据库）
+在DOS窗口中输入如下命令
+mysql -uroot -p12345678 lib < d:\lib_2023-06-19.sql

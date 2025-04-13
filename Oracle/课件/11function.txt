@@ -1,0 +1,45 @@
+create or replace function f_1(fno in emp.empno%type)  --允许用参考变量
+return number  --注意：没有分号‘；‘
+is
+	v_sal emp.sal%type;
+begin
+	select sal into v_sal from emp where empno=fno;	
+	return v_sal;
+end;
+/
+--执行1
+select f_1(7788) from dual;  --因为函数返回值是值，那就可以用select查询
+--执行2  执行dbms下的输出包来输出函数值
+exec dbms_output.put_line(f_1(7788));
+
+
+--练习2
+create or replace function f_1(fno in emp.empno%type) 
+return emp.ename%type  --允许使用参考变量
+is
+	v_ename emp.ename%type;
+begin
+	select ename into v_ename from emp where empno=fno;	
+	return v_ename;
+exception 	when no_data_found then
+	dbms_output.put_line('errors');
+	return null;
+	when others then 
+	dbms_output.put_line('errors');
+	return null;
+end;
+/
+--执行
+select f_1(7788) from dual; 
+exec dbms_output.put_line(f_1(7788));
+
+
+--练习
+create or replace function avg1(a number,b number)
+return number
+is
+begin
+	return (a+b)/2;
+end;
+/
+select avg1(11,9) from dual;
